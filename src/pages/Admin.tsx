@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,8 @@ interface Hero {
   biography: string;
   timeline: Array<{ year: number; event: string }>;
 }
+
+const API_URL = 'https://functions.poehali.dev/28b83b8d-eec5-415d-ae63-844c40b0b4c4';
 
 const initialHeroes: Hero[] = [
   {
@@ -81,10 +83,33 @@ const initialHeroes: Hero[] = [
 ];
 
 export default function Admin() {
-  const [heroes, setHeroes] = useState<Hero[]>(initialHeroes);
+  const [heroes, setHeroes] = useState<Hero[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHero, setEditingHero] = useState<Hero | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchHeroes();
+  }, []);
+
+  const fetchHeroes = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setHeroes(data);
+    } catch (error) {
+      console.error('Error fetching heroes:', error);
+      toast({
+        title: "Ошибка загрузки",
+        description: "Не удалось загрузить героев",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [formData, setFormData] = useState({
     name: '',
@@ -132,15 +157,31 @@ export default function Admin() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    setHeroes(heroes.filter(h => h.id !== id));
-    toast({
-      title: "Герой удален",
-      description: "Запись успешно удалена из каталога",
-    });
+  const handleDelete = async (id: number) => {
+    try {
+      const response = await fetch(`${API_URL}?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        setHeroes(heroes.filter(h => h.id !== id));
+        toast({
+          title: "Герой удален",
+          description: "Запись успешно удалена из каталога",
+        });
+      } else {
+        throw new Error('Failed to delete');
+      }
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось удалить героя",
+        variant: "destructive"
+      });
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const timelineArray = formData.timeline
@@ -154,8 +195,8 @@ export default function Admin() {
         };
       });
 
-    const heroData: Hero = {
-      id: editingHero ? editingHero.id : Date.now(),
+    const heroData = {
+      id: editingHero ? editingHero.id : undefined,
       name: formData.name,
       rank: formData.rank,
       image: formData.image,
@@ -168,22 +209,52 @@ export default function Admin() {
       timeline: timelineArray
     };
 
-    if (editingHero) {
-      setHeroes(heroes.map(h => h.id === editingHero.id ? heroData : h));
+    try {
+      if (editingHero) {
+        const response = await fetch(API_URL, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(heroData),
+        });
+        
+        if (response.ok) {
+          const updatedHero = await response.json();
+          setHeroes(heroes.map(h => h.id === editingHero.id ? updatedHero : h));
+          toast({
+            title: "Герой обновлен",
+            description: "Информация успешно сохранена",
+          });
+        } else {
+          throw new Error('Failed to update');
+        }
+      } else {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(heroData),
+        });
+        
+        if (response.ok) {
+          const newHero = await response.json();
+          setHeroes([newHero, ...heroes]);
+          toast({
+            title: "Герой добавлен",
+            description: "Новый герой добавлен в каталог",
+          });
+        } else {
+          throw new Error('Failed to create');
+        }
+      }
+
+      setIsDialogOpen(false);
+      resetForm();
+    } catch (error) {
       toast({
-        title: "Герой обновлен",
-        description: "Информация успешно сохранена",
-      });
-    } else {
-      setHeroes([...heroes, heroData]);
-      toast({
-        title: "Герой добавлен",
-        description: "Новый герой добавлен в каталог",
+        title: "Ошибка",
+        description: "Не удалось сохранить данные",
+        variant: "destructive"
       });
     }
-
-    setIsDialogOpen(false);
-    resetForm();
   };
 
   return (

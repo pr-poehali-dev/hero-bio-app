@@ -1,0 +1,41 @@
+{
+  "tests": [
+    {
+      "name": "Get all heroes",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "0": {
+          "name": "string",
+          "rank": "string",
+          "region": "string"
+        }
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Create new hero",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "name": "Тестовый Герой",
+        "rank": "Солдат",
+        "image": "https://example.com/image.jpg",
+        "period": "2000-2024",
+        "conflict": "СВО",
+        "region": "Москва",
+        "awards": ["Орден Мужества"],
+        "birthYear": 2000,
+        "biography": "Тестовая биография",
+        "timeline": [{"year": 2022, "event": "Участие в СВО"}]
+      },
+      "expectedStatus": 201,
+      "expectedBody": {
+        "name": "Тестовый Герой",
+        "rank": "Солдат"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

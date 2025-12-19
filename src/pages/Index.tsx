@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,68 +20,32 @@ interface Hero {
   timeline: Array<{ year: number; event: string }>;
 }
 
-const heroesData: Hero[] = [
-  {
-    id: 1,
-    name: "Алексей Петрович Маресьев",
-    rank: "Лётчик-истребитель",
-    image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/83d53e6e-d034-40a5-a063-701c36d74b9b.jpg",
-    period: "1916-2001",
-    conflict: "Великая Отечественная война",
-    region: "Волгоградская область",
-    awards: ["Герой Советского Союза", "Орден Ленина", "Орден Красного Знамени"],
-    birthYear: 1916,
-    biography: "Советский военный лётчик-истребитель, Герой Советского Союза. Прототип героя повести Бориса Полевого «Повесть о настоящем человеке». Несмотря на тяжелое ранение и ампутацию обеих ног, вернулся в строй и продолжил сражаться с врагом.",
-    timeline: [
-      { year: 1941, event: "Призван в РККА" },
-      { year: 1942, event: "Тяжелое ранение, ампутация ног" },
-      { year: 1943, event: "Возвращение в строй" },
-      { year: 1945, event: "Победа в войне, 86 боевых вылетов" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Зоя Анатольевна Космодемьянская",
-    rank: "Партизанка-диверсант",
-    image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/c43cd418-bcaf-4c13-b400-adc568f236ed.jpg",
-    period: "1923-1941",
-    conflict: "Великая Отечественная война",
-    region: "Тамбовская область",
-    awards: ["Герой Советского Союза (посмертно)", "Орден Ленина"],
-    birthYear: 1923,
-    biography: "Красноармеец диверсионно-разведывательной группы штаба Западного фронта. Первая женщина, удостоенная звания Герой Советского Союза во время Великой Отечественной войны (посмертно). Казнена немецкими захватчиками в деревне Петрищево.",
-    timeline: [
-      { year: 1941, event: "Вступила в партизанский отряд" },
-      { year: 1941, event: "Диверсионные операции в тылу врага" },
-      { year: 1941, event: "Поимка и казнь в Петрищево" },
-      { year: 1942, event: "Присвоение звания Героя (посмертно)" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Александр Иванович Покрышкин",
-    rank: "Маршал авиации",
-    image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/cda830e3-8d6c-4c05-95bc-094bab8b8ab4.jpg",
-    period: "1913-1985",
-    conflict: "Великая Отечественная война",
-    region: "Новосибирская область",
-    awards: ["Герой Советского Союза (трижды)", "Орден Ленина (6)", "Орден Красного Знамени (4)"],
-    birthYear: 1913,
-    biography: "Советский военачальник, лётчик-ас, второй по результативности (после Ивана Кожедуба) пилот-истребитель среди лётчиков стран антигитлеровской коалиции во Второй мировой войне. Сбил 59 самолётов противника лично и 6 — в группе.",
-    timeline: [
-      { year: 1939, event: "Начало службы в ВВС" },
-      { year: 1943, event: "Первое присвоение звания Героя" },
-      { year: 1943, event: "Второе присвоение звания Героя" },
-      { year: 1944, event: "Третье присвоение звания Героя" }
-    ]
-  }
-];
+const API_URL = 'https://functions.poehali.dev/28b83b8d-eec5-415d-ae63-844c40b0b4c4';
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
   const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [selectedHero, setSelectedHero] = useState<Hero | null>(null);
+  const [heroesData, setHeroesData] = useState<Hero[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchHeroes();
+  }, []);
+
+  const fetchHeroes = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setHeroesData(data);
+    } catch (error) {
+      console.error('Error fetching heroes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const regions = ['all', ...Array.from(new Set(heroesData.map(h => h.region))).sort()];
 
@@ -298,8 +262,15 @@ export default function Index() {
           </h2>
         </div>
 
+        {loading && (
+          <div className="text-center py-16">
+            <Icon name="Loader2" className="mx-auto animate-spin text-primary mb-4" size={64} />
+            <p className="text-muted-foreground">Загрузка героев...</p>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredHeroes.map((hero, idx) => (
+          {!loading && filteredHeroes.map((hero, idx) => (
             <Card
               key={hero.id}
               className="overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer group animate-fade-in border-2 hover:border-primary"
@@ -344,7 +315,7 @@ export default function Index() {
           ))}
         </div>
 
-        {filteredHeroes.length === 0 && (
+        {!loading && filteredHeroes.length === 0 && (
           <div className="text-center py-16">
             <Icon name="Search" className="mx-auto text-muted-foreground mb-4" size={64} />
             <h3 className="text-2xl font-heading font-semibold text-muted-foreground mb-2">
