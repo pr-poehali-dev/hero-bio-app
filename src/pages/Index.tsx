@@ -170,11 +170,11 @@ export default function Index() {
           <div className="flex justify-end mb-4">
             <Button
               variant="secondary"
-              onClick={() => window.location.href = '/admin'}
+              onClick={() => window.location.href = '/login'}
               className="flex items-center gap-2"
             >
-              <Icon name="Settings" size={18} />
-              Админ-панель
+              <Icon name="Shield" size={18} />
+              Вход для администратора
             </Button>
           </div>
           <div className="text-center">

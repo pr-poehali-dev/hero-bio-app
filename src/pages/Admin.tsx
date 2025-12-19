@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -89,10 +90,16 @@ export default function Admin() {
   const [editingHero, setEditingHero] = useState<Hero | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
     fetchHeroes();
-  }, []);
+  }, [navigate]);
 
   const fetchHeroes = async () => {
     try {
@@ -212,9 +219,13 @@ export default function Admin() {
   };
 
   const handleDelete = async (id: number) => {
+    const token = localStorage.getItem('admin_token');
     try {
       const response = await fetch(`${API_URL}?id=${id}`, {
         method: 'DELETE',
+        headers: {
+          'X-Admin-Token': token || ''
+        }
       });
       
       if (response.ok) {
@@ -223,6 +234,13 @@ export default function Admin() {
           title: "Герой удален",
           description: "Запись успешно удалена из каталога",
         });
+      } else if (response.status === 401) {
+        toast({
+          title: "Ошибка доступа",
+          description: "Сессия истекла. Войдите снова",
+          variant: "destructive"
+        });
+        navigate('/login');
       } else {
         throw new Error('Failed to delete');
       }
@@ -263,11 +281,16 @@ export default function Admin() {
       timeline: timelineArray
     };
 
+    const token = localStorage.getItem('admin_token');
+
     try {
       if (editingHero) {
         const response = await fetch(API_URL, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Token': token || ''
+          },
           body: JSON.stringify(heroData),
         });
         
@@ -278,13 +301,24 @@ export default function Admin() {
             title: "Герой обновлен",
             description: "Информация успешно сохранена",
           });
+        } else if (response.status === 401) {
+          toast({
+            title: "Ошибка доступа",
+            description: "Сессия истекла. Войдите снова",
+            variant: "destructive"
+          });
+          navigate('/login');
+          return;
         } else {
           throw new Error('Failed to update');
         }
       } else {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-Admin-Token': token || ''
+          },
           body: JSON.stringify(heroData),
         });
         
@@ -295,6 +329,14 @@ export default function Admin() {
             title: "Герой добавлен",
             description: "Новый герой добавлен в каталог",
           });
+        } else if (response.status === 401) {
+          toast({
+            title: "Ошибка доступа",
+            description: "Сессия истекла. Войдите снова",
+            variant: "destructive"
+          });
+          navigate('/login');
+          return;
         } else {
           throw new Error('Failed to create');
         }
@@ -320,15 +362,29 @@ export default function Admin() {
               <h1 className="text-4xl font-bold font-heading mb-2">Админ-панель</h1>
               <p className="text-lg opacity-90">Управление нашими героями</p>
             </div>
-            <Button
-              variant="secondary"
-              size="lg"
-              onClick={() => window.location.href = '/'}
-              className="flex items-center gap-2"
-            >
-              <Icon name="Eye" size={20} />
-              Перейти на сайт
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                size="lg"
+                onClick={() => window.location.href = '/'}
+                className="flex items-center gap-2"
+              >
+                <Icon name="Eye" size={20} />
+                Перейти на сайт
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={() => {
+                  localStorage.removeItem('admin_token');
+                  navigate('/login');
+                }}
+                className="flex items-center gap-2 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20"
+              >
+                <Icon name="LogOut" size={20} />
+                Выйти
+              </Button>
+            </div>
           </div>
         </div>
       </div>

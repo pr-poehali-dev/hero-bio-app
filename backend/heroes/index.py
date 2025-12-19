@@ -1,6 +1,8 @@
 import json
 import os
-from typing import Dict, Any
+import hmac
+import hashlib
+from typing import Dict, Any, Optional
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
@@ -10,6 +12,28 @@ def get_db_connection():
         os.environ['DATABASE_URL'],
         cursor_factory=RealDictCursor
     )
+
+def verify_admin_token(token: Optional[str]) -> bool:
+    """Verify admin authentication token"""
+    if not token:
+        return False
+    
+    try:
+        parts = token.split(':')
+        if len(parts) != 3:
+            return False
+        
+        user, timestamp, received_token = parts
+        if user != 'admin':
+            return False
+        
+        secret_key = os.environ.get('KEY', 'default-secret-key')
+        payload = f"{user}:{timestamp}"
+        expected_token = hmac.new(secret_key.encode(), payload.encode(), hashlib.sha256).hexdigest()
+        
+        return hmac.compare_digest(expected_token, received_token)
+    except Exception:
+        return False
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     """
@@ -27,12 +51,27 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': {
                 'Access-Control-Allow-Origin': '*',
                 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type',
+                'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Token',
                 'Access-Control-Max-Age': '86400'
             },
             'body': '',
             'isBase64Encoded': False
         }
+    
+    headers = event.get('headers', {})
+    admin_token = headers.get('x-admin-token') or headers.get('X-Admin-Token')
+    
+    if method in ['POST', 'PUT', 'DELETE']:
+        if not verify_admin_token(admin_token):
+            return {
+                'statusCode': 401,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({'error': 'Unauthorized: Admin authentication required'}),
+                'isBase64Encoded': False
+            }
     
     conn = get_db_connection()
     cursor = conn.cursor()
