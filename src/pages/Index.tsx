@@ -215,18 +215,12 @@ export default function Index() {
                 Фильтр по периоду
               </h3>
               <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto gap-2">
+                <TabsList className="grid w-full grid-cols-3 h-auto gap-2">
                   <TabsTrigger value="all" className="text-base py-3">
                     Все периоды
                   </TabsTrigger>
                   <TabsTrigger value="Великая Отечественная война" className="text-base py-3">
                     ВОВ 1941-1945
-                  </TabsTrigger>
-                  <TabsTrigger value="Афганистан" className="text-base py-3">
-                    Афганистан
-                  </TabsTrigger>
-                  <TabsTrigger value="Чечня" className="text-base py-3">
-                    Чечня
                   </TabsTrigger>
                   <TabsTrigger value="СВО" className="text-base py-3">
                     СВО
