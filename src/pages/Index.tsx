@@ -184,7 +184,7 @@ export default function Index() {
               </div>
             </div>
             <h1 className="text-5xl font-bold font-heading mb-4 animate-fade-in">
-              Герои России
+              Наши Герои
             </h1>
             <p className="text-xl opacity-90 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '100ms' }}>
               Память о подвиге. История отваги. Примеры мужества для будущих поколений.

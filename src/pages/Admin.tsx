@@ -318,7 +318,7 @@ export default function Admin() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold font-heading mb-2">Админ-панель</h1>
-              <p className="text-lg opacity-90">Управление героями России</p>
+              <p className="text-lg opacity-90">Управление нашими героями</p>
             </div>
             <Button
               variant="secondary"
