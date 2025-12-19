@@ -1,0 +1,18 @@
+{
+  "name": "Наши Герои",
+  "short_name": "Наши Герои",
+  "description": "Память о подвиге. История отваги. Примеры мужества для будущих поколений.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/8aec6351-10b4-4cb2-aa6a-964e56cd7e7c.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
