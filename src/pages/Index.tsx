@@ -187,18 +187,30 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <div className="bg-gradient-to-r from-primary via-primary/90 to-primary text-primary-foreground py-16 px-4 shadow-xl">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex justify-center mb-6">
-            <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center shadow-2xl">
-              <Icon name="Medal" size={40} className="text-secondary-foreground" />
-            </div>
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="secondary"
+              onClick={() => window.location.href = '/admin'}
+              className="flex items-center gap-2"
+            >
+              <Icon name="Settings" size={18} />
+              Админ-панель
+            </Button>
           </div>
-          <h1 className="text-5xl font-bold font-heading mb-4 animate-fade-in">
-            Герои России
-          </h1>
-          <p className="text-xl opacity-90 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '100ms' }}>
-            Память о подвиге. История отваги. Примеры мужества для будущих поколений.
-          </p>
+          <div className="text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center shadow-2xl">
+                <Icon name="Medal" size={40} className="text-secondary-foreground" />
+              </div>
+            </div>
+            <h1 className="text-5xl font-bold font-heading mb-4 animate-fade-in">
+              Герои России
+            </h1>
+            <p className="text-xl opacity-90 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: '100ms' }}>
+              Память о подвиге. История отваги. Примеры мужества для будущих поколений.
+            </p>
+          </div>
         </div>
       </div>
 
