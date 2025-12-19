@@ -1,4 +1,5 @@
 {
+  "auth": "https://functions.poehali.dev/53e0f789-6ce1-4174-9e88-1560f13872bb",
   "upload-image": "https://functions.poehali.dev/5f6529c7-f161-4e29-a7ff-f0b6e93d9c0d",
   "heroes": "https://functions.poehali.dev/28b83b8d-eec5-415d-ae63-844c40b0b4c4"
 }

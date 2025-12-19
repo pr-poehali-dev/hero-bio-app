@@ -1,0 +1,29 @@
+{
+  "tests": [
+    {
+      "name": "Test successful authentication",
+      "method": "POST",
+      "body": {
+        "password": "test-password"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "token": "string",
+        "message": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Test invalid password",
+      "method": "POST",
+      "body": {
+        "password": "wrong-password"
+      },
+      "expectedStatus": 401,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
