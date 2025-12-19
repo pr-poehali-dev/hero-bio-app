@@ -24,6 +24,7 @@ interface Hero {
 }
 
 const API_URL = 'https://functions.poehali.dev/28b83b8d-eec5-415d-ae63-844c40b0b4c4';
+const UPLOAD_API_URL = 'https://functions.poehali.dev/5f6529c7-f161-4e29-a7ff-f0b6e93d9c0d';
 
 const initialHeroes: Hero[] = [
   {
@@ -123,6 +124,7 @@ export default function Admin() {
     biography: '',
     timeline: ''
   });
+  const [uploading, setUploading] = useState(false);
 
   const resetForm = () => {
     setFormData({
@@ -155,6 +157,58 @@ export default function Admin() {
       timeline: hero.timeline.map(t => `${t.year}: ${t.event}`).join('\n')
     });
     setIsDialogOpen(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Ошибка",
+        description: "Выберите изображение",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        
+        const response = await fetch(UPLOAD_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image: base64,
+            contentType: file.type
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setFormData({ ...formData, image: data.url });
+          toast({
+            title: "Фото загружено",
+            description: "Изображение успешно загружено"
+          });
+        } else {
+          throw new Error('Upload failed');
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      toast({
+        title: "Ошибка",
+        description: "Не удалось загрузить изображение",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDelete = async (id: number) => {
@@ -325,14 +379,38 @@ export default function Admin() {
                 </div>
 
                 <div>
-                  <Label htmlFor="image">URL изображения *</Label>
-                  <Input
-                    id="image"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    required
-                    placeholder="https://..."
-                  />
+                  <Label htmlFor="image">Изображение *</Label>
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        disabled={uploading}
+                        className="flex-1"
+                      />
+                      {uploading && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Icon name="Loader2" className="animate-spin" size={20} />
+                          Загрузка...
+                        </div>
+                      )}
+                    </div>
+                    <Input
+                      id="image"
+                      value={formData.image}
+                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                      required
+                      placeholder="или введите URL изображения"
+                    />
+                    {formData.image && (
+                      <img 
+                        src={formData.image} 
+                        alt="Preview" 
+                        className="w-32 h-32 object-cover rounded-lg border-2 border-primary"
+                      />
+                    )}
+                  </div>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
