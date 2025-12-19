@@ -16,6 +16,7 @@ interface Hero {
   image: string;
   period: string;
   conflict: string;
+  region: string;
   awards: string[];
   birthYear: number;
   biography: string;
@@ -30,6 +31,7 @@ const initialHeroes: Hero[] = [
     image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/83d53e6e-d034-40a5-a063-701c36d74b9b.jpg",
     period: "1916-2001",
     conflict: "Великая Отечественная война",
+    region: "Волгоградская область",
     awards: ["Герой Советского Союза", "Орден Ленина", "Орден Красного Знамени"],
     birthYear: 1916,
     biography: "Советский военный лётчик-истребитель, Герой Советского Союза. Прототип героя повести Бориса Полевого «Повесть о настоящем человеке». Несмотря на тяжелое ранение и ампутацию обеих ног, вернулся в строй и продолжил сражаться с врагом.",
@@ -47,6 +49,7 @@ const initialHeroes: Hero[] = [
     image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/c43cd418-bcaf-4c13-b400-adc568f236ed.jpg",
     period: "1923-1941",
     conflict: "Великая Отечественная война",
+    region: "Тамбовская область",
     awards: ["Герой Советского Союза (посмертно)", "Орден Ленина"],
     birthYear: 1923,
     biography: "Красноармеец диверсионно-разведывательной группы штаба Западного фронта. Первая женщина, удостоенная звания Герой Советского Союза во время Великой Отечественной войны (посмертно). Казнена немецкими захватчиками в деревне Петрищево.",
@@ -64,6 +67,7 @@ const initialHeroes: Hero[] = [
     image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/cda830e3-8d6c-4c05-95bc-094bab8b8ab4.jpg",
     period: "1913-1985",
     conflict: "Великая Отечественная война",
+    region: "Новосибирская область",
     awards: ["Герой Советского Союза (трижды)", "Орден Ленина (6)", "Орден Красного Знамени (4)"],
     birthYear: 1913,
     biography: "Советский военачальник, лётчик-ас, второй по результативности (после Ивана Кожедуба) пилот-истребитель среди лётчиков стран антигитлеровской коалиции во Второй мировой войне. Сбил 59 самолётов противника лично и 6 — в группе.",
@@ -88,6 +92,7 @@ export default function Admin() {
     image: '',
     period: '',
     conflict: '',
+    region: '',
     awards: '',
     birthYear: '',
     biography: '',
@@ -101,6 +106,7 @@ export default function Admin() {
       image: '',
       period: '',
       conflict: '',
+      region: '',
       awards: '',
       birthYear: '',
       biography: '',
@@ -117,6 +123,7 @@ export default function Admin() {
       image: hero.image,
       period: hero.period,
       conflict: hero.conflict,
+      region: hero.region,
       awards: hero.awards.join(', '),
       birthYear: hero.birthYear.toString(),
       biography: hero.biography,
@@ -154,6 +161,7 @@ export default function Admin() {
       image: formData.image,
       period: formData.period,
       conflict: formData.conflict,
+      region: formData.region,
       awards: formData.awards.split(',').map(a => a.trim()).filter(a => a),
       birthYear: parseInt(formData.birthYear),
       biography: formData.biography,
@@ -280,15 +288,27 @@ export default function Admin() {
                   </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="conflict">Конфликт *</Label>
-                  <Input
-                    id="conflict"
-                    value={formData.conflict}
-                    onChange={(e) => setFormData({ ...formData, conflict: e.target.value })}
-                    required
-                    placeholder="Великая Отечественная война"
-                  />
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="conflict">Конфликт *</Label>
+                    <Input
+                      id="conflict"
+                      value={formData.conflict}
+                      onChange={(e) => setFormData({ ...formData, conflict: e.target.value })}
+                      required
+                      placeholder="Великая Отечественная война"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="region">Регион *</Label>
+                    <Input
+                      id="region"
+                      value={formData.region}
+                      onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                      required
+                      placeholder="Московская область"
+                    />
+                  </div>
                 </div>
 
                 <div>
@@ -367,6 +387,10 @@ export default function Admin() {
                       <div className="flex flex-wrap gap-2">
                         <Badge variant="outline">{hero.period}</Badge>
                         <Badge className="bg-primary text-primary-foreground">{hero.conflict}</Badge>
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          <Icon name="MapPin" size={12} />
+                          {hero.region}
+                        </Badge>
                         <Badge variant="secondary">{hero.awards.length} наград</Badge>
                       </div>
                     </div>

@@ -13,6 +13,7 @@ interface Hero {
   image: string;
   period: string;
   conflict: string;
+  region: string;
   awards: string[];
   birthYear: number;
   biography: string;
@@ -27,6 +28,7 @@ const heroesData: Hero[] = [
     image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/83d53e6e-d034-40a5-a063-701c36d74b9b.jpg",
     period: "1916-2001",
     conflict: "Великая Отечественная война",
+    region: "Волгоградская область",
     awards: ["Герой Советского Союза", "Орден Ленина", "Орден Красного Знамени"],
     birthYear: 1916,
     biography: "Советский военный лётчик-истребитель, Герой Советского Союза. Прототип героя повести Бориса Полевого «Повесть о настоящем человеке». Несмотря на тяжелое ранение и ампутацию обеих ног, вернулся в строй и продолжил сражаться с врагом.",
@@ -44,6 +46,7 @@ const heroesData: Hero[] = [
     image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/c43cd418-bcaf-4c13-b400-adc568f236ed.jpg",
     period: "1923-1941",
     conflict: "Великая Отечественная война",
+    region: "Тамбовская область",
     awards: ["Герой Советского Союза (посмертно)", "Орден Ленина"],
     birthYear: 1923,
     biography: "Красноармеец диверсионно-разведывательной группы штаба Западного фронта. Первая женщина, удостоенная звания Герой Советского Союза во время Великой Отечественной войны (посмертно). Казнена немецкими захватчиками в деревне Петрищево.",
@@ -61,6 +64,7 @@ const heroesData: Hero[] = [
     image: "https://cdn.poehali.dev/projects/43d2d783-eb2e-4d1b-8798-159071297277/files/cda830e3-8d6c-4c05-95bc-094bab8b8ab4.jpg",
     period: "1913-1985",
     conflict: "Великая Отечественная война",
+    region: "Новосибирская область",
     awards: ["Герой Советского Союза (трижды)", "Орден Ленина (6)", "Орден Красного Знамени (4)"],
     birthYear: 1913,
     biography: "Советский военачальник, лётчик-ас, второй по результативности (после Ивана Кожедуба) пилот-истребитель среди лётчиков стран антигитлеровской коалиции во Второй мировой войне. Сбил 59 самолётов противника лично и 6 — в группе.",
@@ -76,13 +80,17 @@ const heroesData: Hero[] = [
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState<string>('all');
+  const [selectedRegion, setSelectedRegion] = useState<string>('all');
   const [selectedHero, setSelectedHero] = useState<Hero | null>(null);
+
+  const regions = ['all', ...Array.from(new Set(heroesData.map(h => h.region))).sort()];
 
   const filteredHeroes = heroesData.filter(hero => {
     const matchesSearch = hero.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          hero.rank.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPeriod = selectedPeriod === 'all' || hero.conflict.includes(selectedPeriod);
-    return matchesSearch && matchesPeriod;
+    const matchesRegion = selectedRegion === 'all' || hero.region === selectedRegion;
+    return matchesSearch && matchesPeriod && matchesRegion;
   });
 
   if (selectedHero) {
@@ -125,6 +133,13 @@ export default function Index() {
                     <h3 className="font-heading font-semibold">Конфликт</h3>
                   </div>
                   <p className="text-muted-foreground">{selectedHero.conflict}</p>
+                </div>
+                <div className="bg-card p-4 rounded-lg shadow">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon name="MapPin" className="text-primary" size={20} />
+                    <h3 className="font-heading font-semibold">Регион</h3>
+                  </div>
+                  <p className="text-muted-foreground">{selectedHero.region}</p>
                 </div>
               </div>
             </div>
@@ -229,22 +244,49 @@ export default function Index() {
             </div>
           </div>
 
-          <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-2">
-              <TabsTrigger value="all" className="text-base py-3">
-                Все периоды
-              </TabsTrigger>
-              <TabsTrigger value="Великая Отечественная война" className="text-base py-3">
-                ВОВ 1941-1945
-              </TabsTrigger>
-              <TabsTrigger value="Афганистан" className="text-base py-3">
-                Афганистан
-              </TabsTrigger>
-              <TabsTrigger value="Чечня" className="text-base py-3">
-                Чечня
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Icon name="Filter" size={16} />
+                Фильтр по периоду
+              </h3>
+              <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-2">
+                  <TabsTrigger value="all" className="text-base py-3">
+                    Все периоды
+                  </TabsTrigger>
+                  <TabsTrigger value="Великая Отечественная война" className="text-base py-3">
+                    ВОВ 1941-1945
+                  </TabsTrigger>
+                  <TabsTrigger value="Афганистан" className="text-base py-3">
+                    Афганистан
+                  </TabsTrigger>
+                  <TabsTrigger value="Чечня" className="text-base py-3">
+                    Чечня
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                <Icon name="MapPin" size={16} />
+                Фильтр по региону
+              </h3>
+              <Tabs value={selectedRegion} onValueChange={setSelectedRegion} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-2">
+                  <TabsTrigger value="all" className="text-base py-3">
+                    Все регионы
+                  </TabsTrigger>
+                  {regions.filter(r => r !== 'all').map(region => (
+                    <TabsTrigger key={region} value={region} className="text-base py-3">
+                      {region}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
         </div>
 
         <div className="mb-6">
