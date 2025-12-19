@@ -251,7 +251,7 @@ export default function Index() {
                 Фильтр по периоду
               </h3>
               <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full">
-                <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-2">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 h-auto gap-2">
                   <TabsTrigger value="all" className="text-base py-3">
                     Все периоды
                   </TabsTrigger>
@@ -263,6 +263,9 @@ export default function Index() {
                   </TabsTrigger>
                   <TabsTrigger value="Чечня" className="text-base py-3">
                     Чечня
+                  </TabsTrigger>
+                  <TabsTrigger value="СВО" className="text-base py-3">
+                    СВО
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
